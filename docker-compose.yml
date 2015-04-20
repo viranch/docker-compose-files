@@ -1,0 +1,35 @@
+tv:
+  build: tv
+  privileged: true
+  environment:
+    EMAIL: push@viranch.me
+    RSS_FEED: http://followshows.com/feed/CCGYc,http://followshows.com/feed/0P9vRbdD
+    TV_OPTS: -s 720p
+  volumes:
+    - ~/data/tv:/data
+    - ~/data/tv-httpd-logs:/var/log/httpd
+    - tv/tv.sh:/opt/scripts/tv.sh:ro
+  ports:
+    - 8080:80
+    - 9091:9091
+
+icinga:
+  image: jeyk/icinga
+  volumes:
+    - icinga/icinga.cfg:/etc/icinga/icinga.cfg:ro
+    - icinga/resource.cfg:/etc/icinga/resource.cfg:ro
+    - icinga/conf.d:/etc/icinga/conf.d:ro
+    - icinga/htpasswd.users:/etc/icinga/htpasswd.users:ro
+    - icinga/postfix-main.cf:/etc/postfix/main.cf
+    - ~/data:/check_data:ro
+  ports:
+    - 8000:80
+
+irc:
+  image: clue/quassel-core
+  volumes:
+    - ~/data/quassel:/var/lib/quassel
+  ports:
+    - 4242:4242
+  user: root
+  #command: openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout /var/lib/quassel/quasselCert.pem -out /var/lib/quassel/quasselCert.pem
