@@ -30,6 +30,6 @@ irc:
   volumes:
     - ~/data/quassel:/var/lib/quassel
   ports:
-    - 4242:4242
+    - 9999:4242
   user: root
   #command: openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout /var/lib/quassel/quasselCert.pem -out /var/lib/quassel/quasselCert.pem
