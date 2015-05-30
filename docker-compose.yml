@@ -9,9 +9,10 @@ tv:
     - ~/data/tv:/data
     - ~/data/tv-httpd-logs:/var/log/httpd
     - tv/tv.sh:/opt/scripts/tv.sh:ro
+    - tv/proxy.conf:/etc/httpd/conf/extra/proxy.conf:ro
   ports:
     - 8080:80
-    - 9091:9091
+    - 9091:9092
 
 icinga:
   image: jeyk/icinga
