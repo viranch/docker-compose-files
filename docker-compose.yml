@@ -1,5 +1,5 @@
 tv:
-  build: tv
+  image: viranch/tv
   privileged: true
   environment:
     EMAIL: push@viranch.me
