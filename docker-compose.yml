@@ -8,8 +8,8 @@ tv:
   volumes:
     - /opt/vps/tv:/data
     - /opt/vps/tv-httpd-logs:/var/log/httpd
-    - tv/tv.sh:/opt/scripts/tv.sh:ro
-    - tv/proxy.conf:/etc/httpd/conf/extra/proxy.conf:ro
+    - ./tv/tv.sh:/opt/scripts/tv.sh:ro
+    - ./tv/proxy.conf:/etc/httpd/conf/extra/proxy.conf:ro
   ports:
     - 8080:80
     - 9091:9092
@@ -17,11 +17,11 @@ tv:
 icinga:
   image: jeyk/icinga
   volumes:
-    - icinga/icinga.cfg:/etc/icinga/icinga.cfg:ro
-    - icinga/resource.cfg:/etc/icinga/resource.cfg:ro
-    - icinga/conf.d:/etc/icinga/conf.d:ro
-    - icinga/htpasswd.users:/etc/icinga/htpasswd.users:ro
-    - icinga/postfix-main.cf:/etc/postfix/main.cf
+    - ./icinga/icinga.cfg:/etc/icinga/icinga.cfg:ro
+    - ./icinga/resource.cfg:/etc/icinga/resource.cfg:ro
+    - ./icinga/conf.d:/etc/icinga/conf.d:ro
+    - ./icinga/htpasswd.users:/etc/icinga/htpasswd.users:ro
+    - ./icinga/postfix-main.cf:/etc/postfix/main.cf
 #    - ~/data:/check_data:ro
   ports:
     - 8000:80
