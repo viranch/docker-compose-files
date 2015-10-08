@@ -2,7 +2,7 @@ tv:
   image: viranch/tv
   privileged: true
   environment:
-    EMAIL: push@viranch.me
+    EMAIL: k6khshyoiq2e@bxc.io
     RSS_FEED: http://followshows.com/feed/CCGYc,http://followshows.com/feed/0P9vRbdD
     TV_OPTS: -s 720p
   volumes:
