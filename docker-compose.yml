@@ -6,8 +6,8 @@ tv:
     RSS_FEED: http://followshows.com/feed/CCGYc,http://followshows.com/feed/0P9vRbdD
     TV_OPTS: -s 720p
   volumes:
-    - ~/data/tv:/data
-    - ~/data/tv-httpd-logs:/var/log/httpd
+    - /opt/vps/tv:/data
+    - /opt/vps/tv-httpd-logs:/var/log/httpd
     - tv/tv.sh:/opt/scripts/tv.sh:ro
     - tv/proxy.conf:/etc/httpd/conf/extra/proxy.conf:ro
   ports:
@@ -22,14 +22,14 @@ icinga:
     - icinga/conf.d:/etc/icinga/conf.d:ro
     - icinga/htpasswd.users:/etc/icinga/htpasswd.users:ro
     - icinga/postfix-main.cf:/etc/postfix/main.cf
-    - ~/data:/check_data:ro
+#    - ~/data:/check_data:ro
   ports:
     - 8000:80
 
 irc:
   image: clue/quassel-core
   volumes:
-    - ~/data/quassel:/var/lib/quassel
+    - /opt/vps/quassel:/var/lib/quassel
   ports:
     - 9999:4242
   user: root
