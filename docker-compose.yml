@@ -7,7 +7,6 @@ tv:
   volumes:
     - /opt/vps/tv:/data
     - /opt/vps/tv-httpd-logs:/var/log/apache2
-    - ./tv/tv.sh:/opt/scripts/tv.sh:ro
   ports:
     - 8080:80
 
