@@ -18,6 +18,7 @@ icinga:
     - ./icinga/conf.d:/etc/icinga/conf.d:ro
     - ./icinga/htpasswd.users:/etc/icinga/htpasswd.users:ro
     - ./icinga/postfix-main.cf:/etc/postfix/main.cf
+    - ./icinga/plugins/check_imap_quota:/usr/lib/nagios/plugins/check_imap_quota:ro
 #    - ~/data:/check_data:ro
   ports:
     - 8000:80
