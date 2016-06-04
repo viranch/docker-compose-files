@@ -6,7 +6,7 @@ tv:
     TV_OPTS: "-s 720p,-s 720p"
   volumes:
     - /opt/vps/tv:/data
-    - /opt/vps/tv-httpd-logs:/var/log/apache2
+    - /opt/vps/httpd_logs:/var/log/apache2
   ports:
     - 8080:80
 
