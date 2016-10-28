@@ -1,5 +1,5 @@
 nginx:
-  build: ./nginx-with-logs
+  build: ./nginx/nginx-with-logs
   container_name: nginx
   restart: always
   volumes:
@@ -16,7 +16,7 @@ dgen:
     - nginx
   volumes:
     - /var/run/docker.sock:/tmp/docker.sock:ro
-    - ./nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl
+    - ./nginx/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl
   command: "-notify-sighup nginx -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf"
 
 site:
