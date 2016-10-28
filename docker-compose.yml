@@ -1,10 +1,11 @@
 nginx:
-  image: nginx
+  build: ./nginx-with-logs
   container_name: nginx
   restart: always
   volumes:
     - /etc/nginx/conf.d
     - /opt/vps/ssl_certs:/etc/nginx/certs
+    - /opt/vps/nginx_logs:/var/log/nginx
   ports:
     - "80:80"
     - "443:443"
