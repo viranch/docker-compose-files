@@ -1,17 +1,61 @@
+nginx:
+  image: nginx
+  container_name: nginx
+  restart: always
+  volumes:
+    - /etc/nginx/conf.d
+    - /opt/vps/ssl_certs:/etc/nginx/certs
+  ports:
+    - "80:80"
+    - "443:443"
+
+dgen:
+  image: jwilder/docker-gen
+  volumes_from:
+    - nginx
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+    - ./nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl
+  command: "-notify-sighup nginx -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf"
+
+site:
+  image: nginx
+  restart: always
+  environment:
+    VIRTUAL_HOST: viranch.me,www.viranch.me
+    CERT_NAME: viranch.me
+  volumes:
+    - /opt/vps/viranch.github.io:/usr/share/nginx/html:ro
+
+indigo:
+  build: /opt/vps/innerdialogue
+  restart: always
+  environment:
+    VIRTUAL_HOST: innerdialogue.in,www.innerdialogue.in
+    RACK_ENV: production
+    ADMIN_EMAIL: ""
+    SMTP_HOST: ""
+    SMTP_USER: ""
+    SMTP_PASS: ""
+
 tv:
   image: viranch/tv
+  restart: always
   environment:
+    VIRTUAL_HOST: vps.viranch.me
+    CERT_NAME: viranch.me
     EMAIL: k6khshyoiq2e@bxc.io
     RSS_FEED: http://followshows.com/feed/CCGYc,http://followshows.com/feed/0P9vRbdD
     TV_OPTS: "-s 720p,-s 720p"
   volumes:
     - /opt/vps/tv:/data
-    - /opt/vps/httpd_logs:/var/log/apache2
-  ports:
-    - 8080:80
 
 icinga:
   image: jeyk/icinga
+  restart: always
+  environment:
+    VIRTUAL_HOST: icinga.viranch.me
+    CERT_NAME: viranch.me
   volumes:
     - ./icinga/icinga.cfg:/etc/icinga/icinga.cfg:ro
     - ./icinga/resource.cfg:/etc/icinga/resource.cfg:ro
@@ -21,10 +65,13 @@ icinga:
     - ./icinga/plugins/check_imap_quota:/usr/lib/nagios/plugins/check_imap_quota:ro
 #    - ~/data:/check_data:ro
   ports:
-    - 8000:80
+    # this is required for docker-gen to pick up the container port
+    # as its not EXPOSEd in icinga Dockerfile
+    - 127.0.0.1:8000:80
 
 irc:
   image: clue/quassel-core
+  restart: always
   volumes:
     - /opt/vps/quassel:/var/lib/quassel
   ports:
