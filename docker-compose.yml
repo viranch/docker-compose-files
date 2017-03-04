@@ -8,7 +8,7 @@ nginx:
   restart: always
   volumes:
     - /etc/nginx/conf.d
-    - ./nginx/proxy.conf:/etc/nginx/proxy.conf
+    - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
     - /opt/vps/ssl_certs:/etc/nginx/certs
     - /opt/vps/nginx_logs:/var/log/nginx
   ports:
