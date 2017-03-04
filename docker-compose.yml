@@ -54,7 +54,7 @@ tv:
     CERT_NAME: viranch.me
     EMAIL: k6khshyoiq2e@bxc.io
     RSS_FEED: http://followshows.com/feed/CCGYc,http://followshows.com/feed/0P9vRbdD
-    TV_OPTS: "-s 720p,-s 720p"
+    TV_OPTS: "-suffix 720p,-suffix 720p"
   volumes:
     - /opt/vps/tv:/data
 
