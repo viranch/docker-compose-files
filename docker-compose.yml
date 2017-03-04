@@ -17,6 +17,8 @@ nginx:
 
 dgen:
   image: jwilder/docker-gen
+  environment:
+    ENABLE_IPV6: "true"
   volumes_from:
     - nginx
   volumes:
