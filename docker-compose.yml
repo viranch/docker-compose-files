@@ -9,6 +9,7 @@ nginx:
   volumes:
     - /etc/nginx/conf.d
     - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
+    - ./nginx/vhost.d:/etc/nginx/vhost.d:ro
     - /opt/vps/ssl_certs:/etc/nginx/certs
     - /opt/vps/nginx_logs:/var/log/nginx
   ports:
@@ -34,6 +35,24 @@ site:
     CERT_NAME: viranch.me
   volumes:
     - /opt/vps/viranch.github.io:/usr/share/nginx/html:ro
+
+tarsh:
+  image: nginx
+  restart: always
+  environment:
+    VIRTUAL_HOST: tarsh.me,www.tarsh.me
+    CERT_NAME: tarsh.me
+  volumes:
+    - ./nginx/sites/tarsh.me:/usr/share/nginx/html:ro
+
+jdorg:
+  image: nginx
+  restart: always
+  environment:
+    VIRTUAL_HOST: jivandaan.org,www.jivandaan.org
+    CERT_NAME: jivandaan.org
+  volumes:
+    - ./nginx/sites/jdorg:/usr/share/nginx/html:ro
 
 indigo:
   build: /opt/vps/innerdialogue
