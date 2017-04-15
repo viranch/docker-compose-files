@@ -11,6 +11,6 @@ until_expiry=$(( ($expiry_date - $today)/(60*60*24) ))
 
 msg="Certificate '$remote' will expire on $(date -d "$expiry")"
 
-[[ $until_expiry -le $2 ]] && echo "CRITICAL - $msg" && exit 1
+[[ $until_expiry -le $2 ]] && echo "CRITICAL - $msg" && exit 2
 
 echo "OK - $msg"
