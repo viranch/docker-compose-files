@@ -90,6 +90,7 @@ icinga:
     - ./icinga/htpasswd.users:/etc/icinga/htpasswd.users:ro
     - ./icinga/postfix-main.cf:/etc/postfix/main.cf
     - ./icinga/plugins/check_imap_quota:/usr/lib/nagios/plugins/check_imap_quota:ro
+    - ./icinga/plugins/check_ssl:/usr/lib/nagios/plugins/check_ssl:ro
 #    - ~/data:/check_data:ro
   ports:
     # this is required for docker-gen to pick up the container port
