@@ -1,0 +1,19 @@
+tv:
+  image: viranch/tv:armv7
+  restart: always
+  environment:
+    EMAIL: k6khshyoiq2e@bxc.io
+    RSS_FEED: http://followshows.com/feed/CCGYc
+    TV_OPTS: "-suffix 720p"
+  ports:
+    - "8080:80"
+  volumes:
+    - /home/alarm/data/tv:/data
+
+plex:
+  image: viranch/plex-armv7
+  restart: always
+  net: host
+  volumes:
+    - /home/alarm/data/plex/config:/config
+    - /home/alarm/data/tv/downloads:/media:ro
