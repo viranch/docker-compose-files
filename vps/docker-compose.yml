@@ -92,10 +92,6 @@ icinga:
     - ./icinga/plugins/check_imap_quota:/usr/lib/nagios/plugins/check_imap_quota:ro
     - ./icinga/plugins/check_ssl:/usr/lib/nagios/plugins/check_ssl:ro
 #    - ~/data:/check_data:ro
-  ports:
-    # this is required for docker-gen to pick up the container port
-    # as its not EXPOSEd in icinga Dockerfile
-    - 127.0.0.1:8000:80
 
 irc:
   image: clue/quassel-core
