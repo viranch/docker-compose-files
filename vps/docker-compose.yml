@@ -68,6 +68,7 @@ indigo:
 tv:
   image: viranch/tv
   restart: always
+  hostname: linode-vps
   environment:
     VIRTUAL_HOST: vps.viranch.me
     CERT_NAME: viranch.me
