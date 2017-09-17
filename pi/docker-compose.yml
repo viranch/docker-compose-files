@@ -18,3 +18,18 @@ plex:
   volumes:
     - /home/alarm/data/plex/config:/config
     - /home/alarm/data/tv/downloads:/media:ro
+
+pihole:
+  image: diginc/pi-hole:arm
+  restart: always
+  environment:
+    ServerIP: 192.168.1.10
+    TZ: Asia/Kolkata
+    WEBPASSWORD: fuckyouads
+  ports:
+    - "53:53/tcp"
+    - "53:53/udp"
+    - "8088:80"
+  volumes:
+    - /home/alarm/data/pihole/etc:/etc/pihole
+    - /home/alarm/data/pihole/dnsmasq:/etc/dnsmasq.d
