@@ -103,3 +103,32 @@ irc:
     - 9999:4242
   user: root
   #command: openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout /var/lib/quassel/quasselCert.pem -out /var/lib/quassel/quasselCert.pem
+
+pihole:
+  image: diginc/pi-hole
+  restart: always
+  environment:
+    VIRTUAL_HOST: pihole.viranch.me
+    CERT_NAME: viranch.me
+    ServerIP: 172.104.161.244
+    WEBPASSWORD: ''
+  ports:
+    - "53:53/tcp"
+    - "53:53/udp"
+  volumes:
+    - /opt/vps/pihole/etc:/etc/pihole
+    - /opt/vps/pihole/dnsmasq:/etc/dnsmasq.d
+
+openvpn:
+  image: kylemanna/openvpn
+  restart: always
+  volumes:
+    - /opt/vps/openvpn/conf:/etc/openvpn
+  ports:
+    - "1194:1194/udp"
+  cap_add:
+    - NET_ADMIN
+  #command: ovpn_genconfig -u udp://vps.viranch.me -n 172.104.161.244
+  #command: ovpn_initpki # run with -it
+  #command: easyrsa build-client-full viranch-vpn nopass # run with -it
+  #command: ovpn_getclient viranch-vpn # save to viranch-vpn.ovpn file
