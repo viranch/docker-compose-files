@@ -111,6 +111,7 @@ pihole:
     VIRTUAL_HOST: pihole.viranch.me
     CERT_NAME: viranch.me
     ServerIP: 172.104.161.244
+    ServerIPv6: "2400:8901::f03c:91ff:fea7:5cb8"
     WEBPASSWORD: ''
   ports:
     - "53:53/tcp"
