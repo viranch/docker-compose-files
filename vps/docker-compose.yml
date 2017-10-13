@@ -10,6 +10,7 @@ nginx:
     - /etc/nginx/conf.d
     - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
     - ./nginx/vhost.d:/etc/nginx/vhost.d:ro
+    - ./nginx/htpasswd:/etc/nginx/htpasswd:ro
     - /opt/vps/ssl_certs:/etc/nginx/certs
     - /opt/vps/nginx_logs:/var/log/nginx
   ports:
@@ -133,3 +134,13 @@ openvpn:
   #command: ovpn_initpki # run with -it
   #command: easyrsa build-client-full viranch-vpn nopass # run with -it
   #command: ovpn_getclient viranch-vpn # save to viranch-vpn.ovpn file
+
+netdata:
+  image: firehol/netdata
+  restart: always
+  environment:
+    VIRTUAL_HOST: netdata.viranch.me
+    CERT_NAME: viranch.me
+  volumes:
+    - /proc:/host/proc:ro
+    - /sys:/host/sys:ro
