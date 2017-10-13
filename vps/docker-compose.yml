@@ -138,6 +138,7 @@ openvpn:
 netdata:
   image: firehol/netdata
   restart: always
+  hostname: vps.viranch.me
   environment:
     VIRTUAL_HOST: netdata.viranch.me
     CERT_NAME: viranch.me
