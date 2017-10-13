@@ -145,5 +145,3 @@ netdata:
   volumes:
     - /proc:/host/proc:ro
     - /sys:/host/sys:ro
-    - /opt/vps/netdata/lib:/var/lib/netdata
-    - /opt/vps/netdata/cache:/var/cache/netdata
