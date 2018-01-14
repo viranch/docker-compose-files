@@ -37,15 +37,6 @@ site:
   volumes:
     - /opt/vps/viranch.github.io:/usr/share/nginx/html:ro
 
-tarsh:
-  image: nginx
-  restart: always
-  environment:
-    VIRTUAL_HOST: tarsh.me,www.tarsh.me
-    CERT_NAME: tarsh.me
-  volumes:
-    - ./nginx/sites/tarsh.me:/usr/share/nginx/html:ro
-
 jdorg:
   image: nginx
   restart: always
