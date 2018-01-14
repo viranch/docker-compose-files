@@ -20,7 +20,7 @@ plex:
     - /home/alarm/data/tv/downloads:/media:ro
 
 pihole:
-  image: diginc/pi-hole:arm
+  image: diginc/pi-hole-multiarch:debian_armhf
   restart: always
   environment:
     ServerIP: 192.168.1.10
