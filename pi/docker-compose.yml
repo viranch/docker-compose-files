@@ -3,7 +3,7 @@ tv:
   restart: always
   hostname: raspberry-pi
   environment:
-    EMAIL: k6khshyoiq2e@bxc.io
+    PB_TOKEN: secret
     RSS_FEED: http://followshows.com/feed/CCGYc
     TV_OPTS: "-suffix 720p"
   ports:

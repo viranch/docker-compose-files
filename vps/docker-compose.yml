@@ -64,7 +64,7 @@ tv:
   environment:
     VIRTUAL_HOST: vps.viranch.me
     CERT_NAME: viranch.me
-    EMAIL: k6khshyoiq2e@bxc.io
+    PB_TOKEN: secret
     RSS_FEED: http://followshows.com/feed/CCGYc,http://followshows.com/feed/0P9vRbdD
     TV_OPTS: "-suffix 720p,-suffix 720p"
   volumes:
@@ -84,6 +84,7 @@ icinga:
     - ./icinga/postfix-main.cf:/etc/postfix/main.cf
     - ./icinga/plugins/check_imap_quota:/usr/lib/nagios/plugins/check_imap_quota:ro
     - ./icinga/plugins/check_ssl:/usr/lib/nagios/plugins/check_ssl:ro
+    - ./icinga/scripts:/opt/scripts
 #    - ~/data:/check_data:ro
 
 irc:
