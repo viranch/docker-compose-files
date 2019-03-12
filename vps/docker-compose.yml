@@ -51,6 +51,7 @@ indigo:
   restart: always
   environment:
     VIRTUAL_HOST: innerdialogue.in,www.innerdialogue.in
+    CERT_NAME: innerdialogue.in
     RACK_ENV: production
     ADMIN_EMAIL: ""
     SMTP_HOST: ""
@@ -64,11 +65,28 @@ tv:
   environment:
     VIRTUAL_HOST: vps.viranch.me
     CERT_NAME: viranch.me
-    PB_TOKEN: secret
+    PB_TOKEN: ''
     RSS_FEED: http://followshows.com/feed/CCGYc,http://followshows.com/feed/0P9vRbdD
     TV_OPTS: "-suffix 720p,-suffix 720p"
   volumes:
     - /opt/vps/tv:/data
+
+plex:
+  image: plexinc/pms-docker
+  restart: always
+  environment:
+    VIRTUAL_HOST: plex.viranch.me
+    VIRTUAL_PORT: 32400
+    CERT_NAME: viranch.me
+    TZ: America/Los_Angeles
+    PLEX_CLAIM: ''
+    ADVERTISE_IP: https://plex.viranch.me/
+  ports:
+    - "32400:32400"
+  hostname: ''
+  volumes:
+    - /opt/vps/plex:/config
+    - /opt/vps/tv/downloads:/data
 
 icinga:
   image: jeyk/icinga
@@ -85,55 +103,4 @@ icinga:
     - ./icinga/plugins/check_imap_quota:/usr/lib/nagios/plugins/check_imap_quota:ro
     - ./icinga/plugins/check_ssl:/usr/lib/nagios/plugins/check_ssl:ro
     - ./icinga/scripts:/opt/scripts
-#    - ~/data:/check_data:ro
-
-irc:
-  image: clue/quassel-core
-  restart: always
-  volumes:
-    - /opt/vps/quassel:/var/lib/quassel
-  ports:
-    - 9999:4242
-  user: root
-  #command: openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout /var/lib/quassel/quasselCert.pem -out /var/lib/quassel/quasselCert.pem
-
-pihole:
-  image: diginc/pi-hole
-  restart: always
-  environment:
-    VIRTUAL_HOST: pihole.viranch.me
-    CERT_NAME: viranch.me
-    ServerIP: 172.104.161.244
-    ServerIPv6: "2400:8901::f03c:91ff:fea7:5cb8"
-    WEBPASSWORD: ''
-  ports:
-    - "53:53/tcp"
-    - "53:53/udp"
-  volumes:
-    - /opt/vps/pihole/etc:/etc/pihole
-    - /opt/vps/pihole/dnsmasq:/etc/dnsmasq.d
-
-openvpn:
-  image: kylemanna/openvpn
-  restart: always
-  volumes:
-    - /opt/vps/openvpn/conf:/etc/openvpn
-  ports:
-    - "1194:1194/udp"
-  cap_add:
-    - NET_ADMIN
-  #command: ovpn_genconfig -u udp://vps.viranch.me -n 172.104.161.244
-  #command: ovpn_initpki # run with -it
-  #command: easyrsa build-client-full viranch-vpn nopass # run with -it
-  #command: ovpn_getclient viranch-vpn # save to viranch-vpn.ovpn file
-
-netdata:
-  image: firehol/netdata
-  restart: always
-  hostname: vps.viranch.me
-  environment:
-    VIRTUAL_HOST: netdata.viranch.me
-    CERT_NAME: viranch.me
-  volumes:
-    - /proc:/host/proc:ro
-    - /sys:/host/sys:ro
+    #- ~/data:/check_data:ro
