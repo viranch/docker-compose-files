@@ -66,8 +66,9 @@ tv:
     VIRTUAL_HOST: vps.viranch.me
     CERT_NAME: viranch.me
     PB_TOKEN: ''
-    RSS_FEED: http://followshows.com/feed/CCGYc,http://followshows.com/feed/0P9vRbdD
-    TV_OPTS: "-suffix 720p,-suffix 720p"
+    RSS_FEED: http://showrss.info/user/204798.rss
+    AUTH_USER: ''
+    AUTH_PASS: ''
   volumes:
     - /opt/vps/tv:/data
 
