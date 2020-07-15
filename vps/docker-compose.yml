@@ -28,36 +28,6 @@ dgen:
     - ./nginx/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl
   command: "-notify-sighup nginx -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf"
 
-site:
-  image: nginx
-  restart: always
-  environment:
-    VIRTUAL_HOST: viranch.me,www.viranch.me
-    CERT_NAME: viranch.me
-  volumes:
-    - /opt/vps/viranch.github.io:/usr/share/nginx/html:ro
-
-jdorg:
-  image: nginx
-  restart: always
-  environment:
-    VIRTUAL_HOST: jivandaan.org,www.jivandaan.org
-    CERT_NAME: jivandaan.org
-  volumes:
-    - ./nginx/sites/jdorg:/usr/share/nginx/html:ro
-
-indigo:
-  build: /opt/vps/innerdialogue
-  restart: always
-  environment:
-    VIRTUAL_HOST: innerdialogue.in,www.innerdialogue.in
-    CERT_NAME: innerdialogue.in
-    RACK_ENV: production
-    ADMIN_EMAIL: ""
-    SMTP_HOST: ""
-    SMTP_USER: ""
-    SMTP_PASS: ""
-
 tv:
   image: viranch/tv
   restart: always
