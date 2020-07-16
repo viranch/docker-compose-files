@@ -6,8 +6,6 @@ nginx:
   build: ./nginx/nginx-with-logs
   container_name: nginx
   restart: always
-  environment:
-    VIRTUAL_HOST: vps.viranch.me
   volumes:
     - /etc/nginx/conf.d
     - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
@@ -30,30 +28,32 @@ dgen:
     - ./nginx/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl
   command: "-notify-sighup nginx -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf"
 
-files:
-  image: viranch/dropbox
+tv:
+  image: viranch/tv
   restart: always
+  hostname: linode-vps
   environment:
-    VIRTUAL_HOST: files.viranch.me
-    CERT_NAME: vps.viranch.me
+    VIRTUAL_HOST: tv.viranch.me
+    PB_TOKEN: ''
+    RSS_FEED: http://showrss.info/user/204798.rss
     AUTH_USER: ''
     AUTH_PASS: ''
   volumes:
-    - /mnt/data/box:/data
+    - /mnt/data/tv:/data
 
-icinga:
-  image: jeyk/icinga
+plex:
+  image: plexinc/pms-docker
   restart: always
   environment:
-    VIRTUAL_HOST: icinga.viranch.me
-    CERT_NAME: vps.viranch.me
+    VIRTUAL_HOST: plex.viranch.me
+    VIRTUAL_PORT: 32400
+    CERT_NAME: tv.viranch.me
+    TZ: America/Los_Angeles
+    PLEX_CLAIM: ''
+    ADVERTISE_IP: https://plex.viranch.me/
+  ports:
+    - "32400:32400"
+  hostname: ''
   volumes:
-    - ./icinga/icinga.cfg:/etc/icinga/icinga.cfg:ro
-    - ./icinga/resource.cfg:/etc/icinga/resource.cfg:ro
-    - ./icinga/conf.d:/etc/icinga/conf.d:ro
-    - ./icinga/htpasswd.users:/etc/icinga/htpasswd.users:ro
-    - ./icinga/postfix-main.cf:/etc/postfix/main.cf
-    - ./icinga/plugins/check_imap_quota:/usr/lib/nagios/plugins/check_imap_quota:ro
-    - ./icinga/plugins/check_ssl:/usr/lib/nagios/plugins/check_ssl:ro
-    - ./icinga/scripts:/opt/scripts
-    - /mnt/data:/check_data:ro
+    - /opt/vps/plex:/config
+    - /mnt/data/tv/downloads:/data
