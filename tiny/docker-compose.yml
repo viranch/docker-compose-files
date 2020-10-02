@@ -1,0 +1,86 @@
+nginx:
+  image: nginx:alpine
+  container_name: nginx
+  restart: always
+  volumes:
+    - /etc/nginx/conf.d
+    - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
+    - /home/data/nginx_logs:/var/log/nginx
+  ports:
+    - "80:80"
+    - "443:443"
+
+dgen:
+  image: jwilder/docker-gen
+  volumes_from:
+    - nginx
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+    - ./nginx/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl
+  command: "-notify-sighup nginx -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf"
+
+tv:
+  image: viranch/tv
+  restart: always
+  net: "container:vpn"
+  environment:
+    PB_TOKEN: ''
+    RSS_FEED: http://showrss.info/user/204798.rss
+  volumes:
+    - /home/data/tv:/data
+
+plex:
+  image: plexinc/pms-docker
+  restart: always
+  environment:
+    TZ: America/Los_Angeles
+    ADVERTISE_IP: http://192.168.0.102:32400/
+    PLEX_CLAIM: ''
+  # https://support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/
+  ports:
+    - "32400:32400"
+    - "32410:32400/udp"
+    - "32412-14:32412-14/udp"
+  volumes:
+    - /home/data/plex/config:/config
+    - /home/data/tv/downloads:/media/tor:ro
+    - /home/neo/downloads/movies:/media/movies:ro
+    - /home/neo/downloads/tv:/media/tv:ro
+    - /home/neo/downloads/kids:/media/kids:ro
+
+stubby:
+  image: mvance/stubby
+  restart: always
+  net: "container:pihole"
+  volumes:
+    - ./stubby.yml:/opt/stubby/etc/stubby/stubby.yml
+
+pihole:
+  image: pihole/pihole
+  restart: always
+  container_name: pihole
+  environment:
+    VIRTUAL_HOST: pi.hole
+    DNS1: "127.0.0.1#8053"
+    DNS2: "no"
+    ServerIP: 192.168.0.102
+    TZ: America/Los_Angeles
+    WEBPASSWORD: fuckyouads
+  ports:
+    - "192.168.0.102:53:53/tcp"
+    - "192.168.0.102:53:53/udp"
+  volumes:
+    - /home/data/pihole/etc-pihole:/etc/pihole
+    - /home/data/pihole/etc-dnsmasq:/etc/dnsmasq.d
+
+vpn:
+  build: ./wireguard
+  container_name: vpn
+  environment:
+    VIRTUAL_HOST: tv.192.168.0.102.xip.io
+  volumes:
+    - ./wireguard/wg0.conf:/etc/wireguard/wg0.conf
+  cap_add:
+    - NET_ADMIN
+    - SYS_MODULE
+  privileged: true
