@@ -6,12 +6,15 @@ nginx:
     - /etc/nginx/conf.d
     - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
     - /home/data/nginx_logs:/var/log/nginx
+    - ./nginx/certs:/etc/nginx/certs
+    - ./nginx/vhosts:/etc/nginx/vhost.d
   ports:
     - "80:80"
     - "443:443"
 
 dgen:
-  image: jwilder/docker-gen
+  #image: jwilder/docker-gen
+  build: ./docker-gen
   volumes_from:
     - nginx
   volumes:
@@ -24,22 +27,51 @@ tv:
   restart: always
   net: "container:vpn"
   environment:
+    VIRTUAL_HOST: tv.*,jk.*:9117
     PB_TOKEN: ''
-    RSS_FEED: http://showrss.info/user/204798.rss
+    #RSS_FEED: http://showrss.info/user/204798.rss
+    AUTH_USER: ''
+    AUTH_PASS: ''
   volumes:
     - /home/data/tv:/data
+
+radarr:
+  image: hotio/radarr
+  restart: always
+  net: "container:vpn"
+  environment:
+    VIRTUAL_HOST: radarr.*
+    VIRTUAL_PORT: 7878
+  volumes:
+    - /home/data/radarr:/config
+    - /home/data/tv/downloads:/mnt/media
+    - /mnt:/media/hdds
+
+sonarr:
+  image: hotio/sonarr
+  restart: always
+  net: "container:vpn"
+  environment:
+    VIRTUAL_HOST: sonarr.*
+    VIRTUAL_PORT: 8989
+  volumes:
+    - /home/data/sonarr:/config
+    - /home/data/tv/downloads:/mnt/media
 
 plex:
   image: plexinc/pms-docker
   restart: always
   environment:
+    VIRTUAL_HOST: plex.viranch.me
+    VIRTUAL_PORT: 32400
+    CERT_NAME: home.viranch.me
     TZ: America/Los_Angeles
-    ADVERTISE_IP: http://192.168.0.102:32400/
+    ADVERTISE_IP: https://plex.viranch.me/
     PLEX_CLAIM: ''
   # https://support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/
   ports:
     - "32400:32400"
-    - "32410:32400/udp"
+    - "32410:32410/udp"
     - "32412-14:32412-14/udp"
   volumes:
     - /home/data/plex/config:/config
@@ -47,6 +79,7 @@ plex:
     - /home/neo/downloads/movies:/media/movies:ro
     - /home/neo/downloads/tv:/media/tv:ro
     - /home/neo/downloads/kids:/media/kids:ro
+    - /mnt:/media/hdds:ro
 
 stubby:
   image: mvance/stubby
@@ -76,11 +109,19 @@ pihole:
 vpn:
   build: ./wireguard
   container_name: vpn
-  environment:
-    VIRTUAL_HOST: tv.192.168.0.102.xip.io
   volumes:
     - ./wireguard/wg0.conf:/etc/wireguard/wg0.conf
   cap_add:
     - NET_ADMIN
     - SYS_MODULE
   privileged: true
+
+org:
+  image: organizr/organizr
+  restart: always
+  environment:
+    VIRTUAL_HOST: home.*
+    fpm: "true"
+    branch: v2-master
+  volumes:
+    - /home/data/org:/config
