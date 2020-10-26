@@ -57,3 +57,25 @@ icinga:
     - ./icinga/plugins/check_ssl:/usr/lib/nagios/plugins/check_ssl:ro
     - ./icinga/scripts:/opt/scripts
     - /opt/vps:/check_data:ro
+
+tv:
+  image: viranch/tv
+  restart: always
+  net: "container:vpn"
+  environment:
+    VIRTUAL_HOST: viranch.tv
+    PB_TOKEN: ''
+    AUTH_USER: ''
+    AUTH_PASS: ''
+  volumes:
+    - /opt/vps/tv:/data
+
+vpn:
+  build: ./wireguard
+  container_name: vpn
+  volumes:
+    - ./wireguard/wg0.conf:/etc/wireguard/wg0.conf
+  cap_add:
+    - NET_ADMIN
+    - SYS_MODULE
+  privileged: true

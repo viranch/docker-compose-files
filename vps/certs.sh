@@ -6,7 +6,7 @@ shift
 
 docker stop nginx
 
-sudo letsencrypt certonly --standalone -d $DOMAIN $@
+sudo letsencrypt certonly --standalone --cert-name $DOMAIN -d $DOMAIN $@
 
 LIVE_PATH=/etc/letsencrypt/live/$DOMAIN
 CERT_FILE=/opt/vps/ssl_certs/$DOMAIN
