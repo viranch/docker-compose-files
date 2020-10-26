@@ -20,7 +20,8 @@ nginx:
     - "443:443"
 
 dgen:
-  image: jwilder/docker-gen
+  build: ./docker-gen
+  #image: jwilder/docker-gen
   environment:
     ENABLE_IPV6: "true"
   volumes_from:
