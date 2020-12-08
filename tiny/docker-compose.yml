@@ -29,34 +29,20 @@ tv:
   environment:
     VIRTUAL_HOST: tv.*,jk.*:9117
     PB_TOKEN: ''
-    #RSS_FEED: http://showrss.info/user/204798.rss
+    RSS_FEED: http://showrss.info/user/204798.rss
     AUTH_USER: ''
     AUTH_PASS: ''
   volumes:
     - /home/data/tv:/data
+    - /mnt:/mnt/hdds
 
-radarr:
-  image: hotio/radarr
+box:
+  image: viranch/dropbox
   restart: always
-  net: "container:vpn"
   environment:
-    VIRTUAL_HOST: radarr.*
-    VIRTUAL_PORT: 7878
+    VIRTUAL_HOST: files.*
   volumes:
-    - /home/data/radarr:/config
-    - /home/data/tv/downloads:/mnt/media
-    - /mnt:/media/hdds
-
-sonarr:
-  image: hotio/sonarr
-  restart: always
-  net: "container:vpn"
-  environment:
-    VIRTUAL_HOST: sonarr.*
-    VIRTUAL_PORT: 8989
-  volumes:
-    - /home/data/sonarr:/config
-    - /home/data/tv/downloads:/mnt/media
+    - /mnt/hdd2/data:/data
 
 plex:
   image: plexinc/pms-docker
@@ -74,7 +60,7 @@ plex:
     - "32410:32410/udp"
     - "32412-14:32412-14/udp"
   volumes:
-    - /home/data/plex/config:/config
+    - /home/data/plex2/config:/config
     - /home/data/tv/downloads:/media/tor:ro
     - /home/neo/downloads/movies:/media/movies:ro
     - /home/neo/downloads/tv:/media/tv:ro
@@ -125,3 +111,61 @@ org:
     branch: v2-master
   volumes:
     - /home/data/org:/config
+
+bobarr-api:
+  build: https://github.com/viranch/bobarr.git#fork:packages/api
+  environment:
+    ENV: production
+    TZ: America/Los_Angeles
+    UMASK_SET: 0002
+    PUID: 0
+    PGID: 0
+    POSTGRES_DB: bobarr
+    POSTGRES_USER: bobarr
+    POSTGRES_PASSWORD: bobarr
+    REDIS_PASSWORD: bobarr
+    JACKETT_AUTOMATIC_SEARCH_TIMEOUT: 120000
+    JACKETT_MANUAL_SEARCH_TIMEOUT: 15000
+    LIBRARY_MOVIES_FOLDER_NAME: movies
+    LIBRARY_TV_SHOWS_FOLDER_NAME: tvshows
+    DEBUG_REDIS: "false"
+    VIRTUAL_HOST: bobarr-api
+  links:
+    - postgres:postgres
+    - redis:redis
+    - tv:jackett
+    - tv:transmission
+  volumes:
+    - /home/data/tv/downloads:/usr/library/downloads/complete
+    - /mnt/hdd2/Movies/English:/usr/library/movies
+    - /mnt/hdd2/TV Shows:/usr/library/tvshows
+  command: yarn start:prod
+
+bobarr-web:
+  build: https://github.com/viranch/bobarr.git#fork:packages/web
+  environment:
+    ENV: production
+    TZ: America/Los_Angeles
+    UMASK_SET: 0002
+    PUID: 0
+    PGID: 0
+    VIRTUAL_HOST: bobarr.*
+  links:
+    - bobarr-api:api
+  command: yarn start
+
+postgres:
+  image: postgres:12-alpine
+  environment:
+    POSTGRES_DB: bobarr
+    POSTGRES_USER: bobarr
+    POSTGRES_PASSWORD: bobarr
+  volumes:
+    - /home/data/bobarr/postgres:/var/lib/postgresql/data
+
+redis:
+  image: bitnami/redis:5.0.6
+  environment:
+    REDIS_PASSWORD: bobarr
+  volumes:
+    - /home/data/bobarr/redis:/bitnami/redis/data
