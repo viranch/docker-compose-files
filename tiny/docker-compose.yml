@@ -34,7 +34,7 @@ tv:
     AUTH_PASS: ''
   volumes:
     - /home/data/tv:/data
-    - /mnt:/mnt/hdds
+    - /mnt:/mnt/hdds:rslave
 
 box:
   image: viranch/dropbox
@@ -42,7 +42,7 @@ box:
   environment:
     VIRTUAL_HOST: files.*
   volumes:
-    - /mnt/hdd2/data:/data
+    - /mnt/hdd2/data:/data:rslave
 
 plex:
   image: plexinc/pms-docker
@@ -65,7 +65,7 @@ plex:
     - /home/neo/downloads/movies:/media/movies:ro
     - /home/neo/downloads/tv:/media/tv:ro
     - /home/neo/downloads/kids:/media/kids:ro
-    - /mnt:/media/hdds:ro
+    - /mnt:/media/hdds:ro,rslave
 
 stubby:
   image: mvance/stubby
@@ -137,8 +137,8 @@ bobarr-api:
     - tv:transmission
   volumes:
     - /home/data/tv/downloads:/usr/library/downloads/complete
-    - /mnt/hdd2/Movies/English:/usr/library/movies
-    - /mnt/hdd2/TV Shows:/usr/library/tvshows
+    - /mnt/hdd2/Movies/English:/usr/library/movies:rslave
+    - /mnt/hdd2/TV Shows:/usr/library/tvshows:rslave
   command: yarn start:prod
 
 bobarr-web:
