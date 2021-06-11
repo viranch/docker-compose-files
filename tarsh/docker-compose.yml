@@ -1,0 +1,59 @@
+nginx:
+  image: nginx:alpine
+  container_name: nginx
+  restart: always
+  volumes:
+    - /etc/nginx/conf.d
+    - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
+    - /opt/data/nginx_logs:/var/log/nginx
+    - ./nginx/certs:/etc/nginx/certs
+  ports:
+    - "80:80"
+    - "443:443"
+
+dgen:
+  #image: jwilder/docker-gen
+  build: ./docker-gen
+  volumes_from:
+    - nginx
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+    - ./nginx/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl
+  command: "-notify-sighup nginx -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf"
+
+wordpress:
+  #image: wordpress
+  build: ./wordpress
+  restart: always
+  environment:
+    WORDPRESS_DB_HOST: db
+    WORDPRESS_DB_USER: wp-user
+    WORDPRESS_DB_PASSWORD:
+    WORDPRESS_DB_NAME: wpdb
+    VIRTUAL_HOST: tarshari.in
+  links:
+    - db:db
+  volumes:
+    - ./wordpress/msmtprc:/etc/msmtprc
+    - /opt/data/wp:/var/www/html
+
+db:
+  image: mysql:5.7
+  restart: always
+  environment:
+    MYSQL_DATABASE: wpdb
+    MYSQL_USER: wp-user
+    MYSQL_PASSWORD:
+    MYSQL_RANDOM_ROOT_PASSWORD: '1'
+  volumes:
+    - /opt/data/db:/var/lib/mysql
+
+wg:
+  build: ./wg
+  volumes:
+    - ./wg/wg0.conf:/etc/wireguard/wg0.conf
+  ports:
+    - 1194:1194/udp
+  cap_add:
+    - NET_ADMIN
+    - SYS_MODULE
