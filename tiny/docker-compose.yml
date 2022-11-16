@@ -6,15 +6,12 @@ nginx:
     - /etc/nginx/conf.d
     - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
     - /home/data/nginx_logs:/var/log/nginx
-    - ./nginx/certs:/etc/nginx/certs
     - ./nginx/vhosts:/etc/nginx/vhost.d
   ports:
     - "80:80"
-    - "443:443"
 
 dgen:
-  #image: jwilder/docker-gen
-  build: ./docker-gen
+  image: nginxproxy/docker-gen
   volumes_from:
     - nginx
   volumes:
@@ -23,17 +20,16 @@ dgen:
   command: "-notify-sighup nginx -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf"
 
 tv:
-  image: viranch/tv
+  image: ghcr.io/viranch/tv
   restart: always
   net: "container:vpn"
   environment:
     VIRTUAL_HOST: tv.*,jk.*:9117
     PB_TOKEN: ''
-    RSS_FEED: http://showrss.info/user/204798.rss
-    AUTH_USER: ''
-    AUTH_PASS: ''
+    HOSTNAME: nuc
   volumes:
     - /home/data/tv:/data
+    - /mnt/hdd2/downloads:/data/downloads:rslave
     - /mnt:/mnt/hdds:rslave
 
 box:
@@ -42,17 +38,16 @@ box:
   environment:
     VIRTUAL_HOST: files.*
   volumes:
-    - /mnt/hdd2/data:/data:rslave
+    - /mnt:/data/mnt:ro,rslave
 
 plex:
   image: plexinc/pms-docker
   restart: always
   environment:
-    VIRTUAL_HOST: plex.viranch.me
+    VIRTUAL_HOST: plex.*
     VIRTUAL_PORT: 32400
-    CERT_NAME: home.viranch.me
     TZ: America/Los_Angeles
-    ADVERTISE_IP: https://plex.viranch.me/
+    ADVERTISE_IP: http://plex.vrn.ch/
     PLEX_CLAIM: ''
   # https://support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/
   ports:
@@ -61,10 +56,6 @@ plex:
     - "32412-14:32412-14/udp"
   volumes:
     - /home/data/plex2/config:/config
-    - /home/data/tv/downloads:/media/tor:ro
-    - /home/neo/downloads/movies:/media/movies:ro
-    - /home/neo/downloads/tv:/media/tv:ro
-    - /home/neo/downloads/kids:/media/kids:ro
     - /mnt:/media/hdds:ro,rslave
 
 stubby:
@@ -79,18 +70,18 @@ pihole:
   restart: always
   container_name: pihole
   environment:
-    VIRTUAL_HOST: pi.hole
-    DNS1: "127.0.0.1#8053"
-    DNS2: "no"
-    ServerIP: 192.168.0.102
+    VIRTUAL_HOST: pi.hole,pihole.*
+    PIHOLE_DNS_: "127.0.0.1#8053"
+    ServerIP: 10.1.1.7
     TZ: America/Los_Angeles
     WEBPASSWORD: fuckyouads
   ports:
-    - "192.168.0.102:53:53/tcp"
-    - "192.168.0.102:53:53/udp"
+    - "10.1.1.7:53:53/tcp"
+    - "10.1.1.7:53:53/udp"
   volumes:
     - /home/data/pihole/etc-pihole:/etc/pihole
     - /home/data/pihole/etc-dnsmasq:/etc/dnsmasq.d
+    - ./pihole/vrnch.conf:/etc/dnsmasq.d/99-vrnch.conf:ro
 
 vpn:
   build: ./wireguard
@@ -106,66 +97,73 @@ org:
   image: organizr/organizr
   restart: always
   environment:
-    VIRTUAL_HOST: home.*
+    VIRTUAL_HOST: home.*,vrn.ch
     fpm: "true"
     branch: v2-master
   volumes:
     - /home/data/org:/config
 
-bobarr-api:
-  build: https://github.com/viranch/bobarr.git#fork:packages/api
+prow:
+  image: lscr.io/linuxserver/prowlarr:develop
+  net: "container:vpn"
   environment:
-    ENV: production
+    VIRTUAL_HOST: prow.*
+    VIRTUAL_PORT: 9696
     TZ: America/Los_Angeles
-    UMASK_SET: 0002
     PUID: 0
     PGID: 0
-    POSTGRES_DB: bobarr
-    POSTGRES_USER: bobarr
-    POSTGRES_PASSWORD: bobarr
-    REDIS_PASSWORD: bobarr
-    JACKETT_AUTOMATIC_SEARCH_TIMEOUT: 120000
-    JACKETT_MANUAL_SEARCH_TIMEOUT: 15000
-    LIBRARY_MOVIES_FOLDER_NAME: movies
-    LIBRARY_TV_SHOWS_FOLDER_NAME: tvshows
-    DEBUG_REDIS: "false"
-    VIRTUAL_HOST: bobarr-api
-  links:
-    - postgres:postgres
-    - redis:redis
-    - tv:jackett
-    - tv:transmission
   volumes:
-    - /home/data/tv/downloads:/usr/library/downloads/complete
-    - /mnt/hdd2/Movies/English:/usr/library/movies:rslave
-    - /mnt/hdd2/TV Shows:/usr/library/tvshows:rslave
-  command: yarn start:prod
+    - /home/data/prowlarr:/config
 
-bobarr-web:
-  build: https://github.com/viranch/bobarr.git#fork:packages/web
+radarr:
+  image: lscr.io/linuxserver/radarr
+  net: "container:vpn"
   environment:
-    ENV: production
+    VIRTUAL_HOST: radarr.*
+    VIRTUAL_PORT: 7878
     TZ: America/Los_Angeles
-    UMASK_SET: 0002
     PUID: 0
     PGID: 0
-    VIRTUAL_HOST: bobarr.*
-  links:
-    - bobarr-api:api
-  command: yarn start
-
-postgres:
-  image: postgres:12-alpine
-  environment:
-    POSTGRES_DB: bobarr
-    POSTGRES_USER: bobarr
-    POSTGRES_PASSWORD: bobarr
   volumes:
-    - /home/data/bobarr/postgres:/var/lib/postgresql/data
+    - /home/data/radarr:/config
+    - /mnt/hdd2/downloads:/data/downloads:rslave
 
-redis:
-  image: bitnami/redis:5.0.6
+sonarr:
+  image: lscr.io/linuxserver/sonarr
+  net: "container:vpn"
   environment:
-    REDIS_PASSWORD: bobarr
+    VIRTUAL_HOST: sonarr.*
+    VIRTUAL_PORT: 8989
+    TZ: America/Los_Angeles
+    PUID: 0
+    PGID: 0
   volumes:
-    - /home/data/bobarr/redis:/bitnami/redis/data
+    - /home/data/sonarr:/config
+    - /mnt/hdd2/downloads:/data/downloads:rslave
+
+gateway:
+  image: ghcr.io/linuxserver/wireguard
+  restart: always
+  environment:
+    PUID: 1000
+    PGID: 1000
+    TZ: America/Los_Angeles
+    SERVERURL: wg.viranch.me
+    PEERS: 5
+    ALLOWEDIPS: 10.1.0.0/16,10.13.13.1/32
+  volumes:
+    - /home/data/wg:/config
+    - /lib/modules:/lib/modules
+  ports:
+    - 51820:51820/udp
+  cap_add:
+    - NET_ADMIN
+
+mintable:
+  build: ./mintable
+  environment:
+    VIRTUAL_HOST: mint.*
+    VIRTUAL_PORT: 8000
+  volumes:
+    - ./mintable/mintable.jsonc:/root/mintable.jsonc
+  command: mintable account-setup

@@ -13,7 +13,7 @@ test -n "$3" && DOMAINS=$DOMAIN,$3 || DOMAINS=$DOMAIN
 
 docker stop nginx
 
-sudo certbot certonly --standalone -d $DOMAINS
+sudo certbot certonly --standalone --cert-name $DOMAIN -d $DOMAINS
 
 LIVE_PATH=/etc/letsencrypt/live/$DOMAIN
 CERT_FILE=$CERT_PATH/$DOMAIN
