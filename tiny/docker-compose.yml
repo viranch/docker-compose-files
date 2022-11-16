@@ -6,7 +6,6 @@ nginx:
     - /etc/nginx/conf.d
     - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
     - /home/data/nginx_logs:/var/log/nginx
-    - ./nginx/vhosts:/etc/nginx/vhost.d
   ports:
     - "80:80"
 
