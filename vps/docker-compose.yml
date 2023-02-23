@@ -6,8 +6,6 @@ nginx:
   image: nginx:alpine
   container_name: nginx
   restart: always
-  environment:
-    VIRTUAL_HOST: vps.viranch.me
   volumes:
     - /etc/nginx/conf.d
     - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
@@ -43,7 +41,7 @@ files:
     - /opt/vps/box:/data
 
 icinga:
-  image: jeyk/icinga
+  image: ghcr.io/viranch/icinga
   restart: always
   environment:
     VIRTUAL_HOST: icinga.viranch.me
@@ -57,26 +55,86 @@ icinga:
     - ./icinga/plugins/check_imap_quota:/usr/lib/nagios/plugins/check_imap_quota:ro
     - ./icinga/plugins/check_ssl:/usr/lib/nagios/plugins/check_ssl:ro
     - ./icinga/scripts:/opt/scripts
-    - /opt/vps:/check_data:ro
+    - /usr/bin/docker:/usr/bin/docker:ro
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /opt/vps/icinga/cache:/var/cache/icinga
+    - /opt/vps/icinga/logs:/var/log/icinga
+    #- /opt/vps:/check_data:ro
+  links:
+    - sonarr:sonarr
+
+pb:
+  image: mkaczanowski/pastebin
+  restart: always
+  environment:
+    VIRTUAL_HOST: pb.viranch.me
+    VIRTUAL_PORT: 8081
+    CERT_NAME: vps.viranch.me
+  command: --address 0.0.0.0 --port 8081 --slug-charset '[A-Za-z0-9]' --slug-len 7 --uri https://pb.viranch.me --db=/var/lib/pastebin/
+  volumes:
+    - /opt/vps/pb:/var/lib/pastebin
 
 tv:
-  image: viranch/tv
+  image: ghcr.io/viranch/tv
   restart: always
   net: "container:vpn"
   environment:
     VIRTUAL_HOST: viranch.tv
-    PB_TOKEN: ''
+    PUSHOVER_APP_TOKEN: ''
+    PUSHOVER_USER_KEY: ''
+    HOSTNAME: vps
     AUTH_USER: ''
     AUTH_PASS: ''
   volumes:
-    - /opt/vps/tv:/data
+    - /opt/vps/tv:/data:rslave
 
 vpn:
   build: ./wireguard
   container_name: vpn
   volumes:
     - ./wireguard/wg0.conf:/etc/wireguard/wg0.conf
+  ports:
+    - "127.0.0.1:9696:9696"
+    - "127.0.0.1:8989:8989"
   cap_add:
     - NET_ADMIN
     - SYS_MODULE
   privileged: true
+
+prow:
+  image: lscr.io/linuxserver/prowlarr:develop
+  net: "container:vpn"
+  environment:
+    TZ: America/Los_Angeles
+    PUID: 0
+    PGID: 0
+  volumes:
+    - /opt/vps/prowlarr:/config
+
+sonarr:
+  image: lscr.io/linuxserver/sonarr
+  net: "container:vpn"
+  environment:
+    TZ: America/Los_Angeles
+    PUID: 0
+    PGID: 0
+  volumes:
+    - /opt/vps/sonarr:/config
+    - /opt/vps/tv/downloads:/data/downloads
+
+plex:
+  image: plexinc/pms-docker
+  restart: always
+  environment:
+    CERT_NAME: viranch.tv
+    VIRTUAL_HOST: plex.viranch.tv
+    VIRTUAL_PORT: 32400
+    TZ: America/Los_Angeles
+    ADVERTISE_IP: http://plex.viranch.tv/
+    PLEX_CLAIM: ''
+  # https://support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/
+  ports:
+    - "127.0.0.1:32400:32400"
+  volumes:
+    - /opt/vps/plex:/config
+    - /opt/vps/tv/downloads:/mnt/media:ro,rslave
