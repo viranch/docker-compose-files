@@ -24,7 +24,8 @@ tv:
   net: "container:vpn"
   environment:
     VIRTUAL_HOST: tv.*,jk.*:9117
-    PB_TOKEN: ''
+    PUSHOVER_APP_TOKEN: ''
+    PUSHOVER_USER_KEY: ''
     HOSTNAME: nuc
   volumes:
     - /home/data/tv:/data
@@ -125,7 +126,7 @@ radarr:
     PGID: 0
   volumes:
     - /home/data/radarr:/config
-    - /mnt/hdd2/downloads:/data/downloads:rslave
+    - /mnt/hdd2:/data:rslave
 
 sonarr:
   image: lscr.io/linuxserver/sonarr
@@ -138,7 +139,7 @@ sonarr:
     PGID: 0
   volumes:
     - /home/data/sonarr:/config
-    - /mnt/hdd2/downloads:/data/downloads:rslave
+    - /mnt/hdd2:/data:rslave
 
 gateway:
   image: ghcr.io/linuxserver/wireguard
