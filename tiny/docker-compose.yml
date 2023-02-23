@@ -18,12 +18,11 @@ dgen:
     - ./nginx/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl
   command: "-notify-sighup nginx -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf"
 
-tv:
-  image: ghcr.io/viranch/tv
+transmission:
+  image: ghcr.io/viranch/transmission
   restart: always
   net: "container:vpn"
   environment:
-    VIRTUAL_HOST: tv.*,jk.*:9117
     PUSHOVER_APP_TOKEN: ''
     PUSHOVER_USER_KEY: ''
     HOSTNAME: nuc
@@ -31,6 +30,26 @@ tv:
     - /home/data/tv:/data
     - /mnt/hdd2/downloads:/data/downloads:rslave
     - /mnt:/mnt/hdds:rslave
+
+jackett:
+  image:  ghcr.io/viranch/jackett
+  restart: always
+  net: "container:vpn"
+  environment:
+    VIRTUAL_HOST: jk.*:9117
+  volumes:
+    - /home/data/tv/jackett/config:/config
+
+tv:
+  image: ghcr.io/viranch/tordash
+  restart: always
+  net: "container:vpn"
+  environment:
+    VIRTUAL_HOST: tv.*
+  volumes:
+    - /mnt/hdd2:/data:rslave,ro
+    #- /mnt/hdd2/downloads:/data:rslave,ro
+    - /home/data/tv/jackett/config:/jackett:ro
 
 box:
   image: viranch/dropbox
