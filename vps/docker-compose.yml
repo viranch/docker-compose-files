@@ -74,19 +74,35 @@ pb:
   volumes:
     - /opt/vps/pb:/var/lib/pastebin
 
+transmission:
+  image: ghcr.io/viranch/transmission
+  restart: always
+  net: "container:vpn"
+  environment:
+    PUSHOVER_APP_TOKEN: ''
+    PUSHOVER_USER_KEY: ''
+    HOSTNAME: vps
+  volumes:
+    - /opt/vps/tv:/data:rslave
+
+jackett:
+  image:  ghcr.io/viranch/jackett
+  restart: always
+  net: "container:vpn"
+  volumes:
+    - /opt/vps/tv/jackett/config:/config:rslave
+
 tv:
-  image: ghcr.io/viranch/tv
+  image: ghcr.io/viranch/tordash
   restart: always
   net: "container:vpn"
   environment:
     VIRTUAL_HOST: viranch.tv
-    PUSHOVER_APP_TOKEN: ''
-    PUSHOVER_USER_KEY: ''
-    HOSTNAME: vps
     AUTH_USER: ''
     AUTH_PASS: ''
   volumes:
-    - /opt/vps/tv:/data:rslave
+    - /opt/vps/tv/downloads:/data:rslave,ro
+    - /opt/vps/tv/jackett/config:/jackett:rslave,ro
 
 vpn:
   build: ./wireguard
