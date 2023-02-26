@@ -86,9 +86,14 @@ transmission:
     - /opt/vps/tv:/data:rslave
 
 jackett:
-  image:  ghcr.io/viranch/jackett
+  image: lscr.io/linuxserver/jackett
   restart: always
   net: "container:vpn"
+  environment:
+    PUID: 0
+    PGID: 0
+    TZ: America/Los_Angeles
+    AUTO_UPDATE: "true"
   volumes:
     - /opt/vps/tv/jackett/config:/config:rslave
 

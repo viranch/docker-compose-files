@@ -32,11 +32,16 @@ transmission:
     - /mnt:/mnt/hdds:rslave
 
 jackett:
-  image:  ghcr.io/viranch/jackett
+  image: lscr.io/linuxserver/jackett
   restart: always
   net: "container:vpn"
   environment:
-    VIRTUAL_HOST: jk.*:9117
+    VIRTUAL_HOST: jk.*
+    VIRTUAL_PORT: 9117
+    PUID: 0
+    PGID: 0
+    TZ: America/Los_Angeles
+    AUTO_UPDATE: "true"
   volumes:
     - /home/data/tv/jackett/config:/config
 
