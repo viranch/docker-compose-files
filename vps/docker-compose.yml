@@ -38,7 +38,8 @@ files:
     AUTH_USER: ''
     AUTH_PASS: ''
   volumes:
-    - /opt/vps/box:/data
+    - /opt/vps/box:/data/box
+    - /opt/vps/tv/downloads:/data/downloads:rslave
 
 icinga:
   image: ghcr.io/viranch/icinga
@@ -83,7 +84,8 @@ transmission:
     PUSHOVER_USER_KEY: ''
     HOSTNAME: vps
   volumes:
-    - /opt/vps/tv:/data:rslave
+    - /opt/vps/tv/transmission:/config
+    - /opt/vps/tv/downloads:/data/downloads:rslave
 
 jackett:
   image: lscr.io/linuxserver/jackett
@@ -134,7 +136,6 @@ prow:
 
 sonarr:
   image: lscr.io/linuxserver/sonarr
-  net: "container:vpn"
   environment:
     TZ: America/Los_Angeles
     PUID: 0
@@ -142,6 +143,26 @@ sonarr:
   volumes:
     - /opt/vps/sonarr:/config
     - /opt/vps/tv/downloads:/data/downloads
+
+radarr:
+  image: lscr.io/linuxserver/radarr
+  environment:
+    TZ: America/Los_Angeles
+    PUID: 0
+    PGID: 0
+  volumes:
+    - /opt/vps/radarr:/config
+    - /opt/vps/tv/downloads:/data/downloads
+
+overseerr:
+  image: sctx/overseerr
+  net: "container:vpn"
+  environment:
+    VIRTUAL_HOST: viranch.tv
+    VIRTUAL_PORT: 5055
+    TZ: America/Los_Angeles
+  volumes:
+    - /opt/vps/overseerr:/app/config
 
 plex:
   image: plexinc/pms-docker
